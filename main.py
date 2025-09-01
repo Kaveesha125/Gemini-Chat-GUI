@@ -74,13 +74,11 @@ def clear_response():
     """Clear the response text area."""
     response_text.delete('1.0', tk.END)
 
-# --- Main Window Setup ---
 root = tk.Tk()
 root.title("🤖 Gemini AI Studio")
 root.geometry("900x700")
 root.configure(bg=COLORS['background'])
 
-# Configure modern font
 try:
     title_font = ('Segoe UI', 18, 'bold')
     heading_font = ('Segoe UI', 12, 'bold')
@@ -92,11 +90,9 @@ except:
     body_font = ('Arial', 10)
     button_font = ('Arial', 10, 'bold')
 
-# Main container with padding
 main_frame = tk.Frame(root, bg=COLORS['background'], padx=20, pady=20)
 main_frame.pack(fill='both', expand=True)
 
-# Title
 title_label = tk.Label(
     main_frame,
     text="🤖 Gemini AI Studio",
@@ -106,15 +102,12 @@ title_label = tk.Label(
 )
 title_label.pack(pady=(0, 20))
 
-# Content frame with white background
 content_frame = tk.Frame(main_frame, bg=COLORS['surface'], relief='raised', bd=1)
 content_frame.pack(fill='both', expand=True, padx=10, pady=10)
 
-# Inner padding frame
 inner_frame = tk.Frame(content_frame, bg=COLORS['surface'], padx=25, pady=25)
 inner_frame.pack(fill='both', expand=True)
 
-# --- Model Selection Section ---
 model_section = tk.Frame(inner_frame, bg=COLORS['surface'])
 model_section.pack(fill='x', pady=(0, 20))
 
@@ -127,7 +120,6 @@ model_label = tk.Label(
 )
 model_label.pack(anchor='w', pady=(0, 8))
 
-# Custom style for combobox
 style = ttk.Style()
 style.theme_use('clam')
 style.configure('Custom.TCombobox',
@@ -145,11 +137,9 @@ model_combobox = ttk.Combobox(
 )
 model_combobox.pack(fill='x', ipady=8)
 
-# Set the default model
 if AVAILABLE_MODELS:
     model_combobox.set('models/gemini-1.5-flash-latest')
 
-# --- Prompt Section ---
 prompt_section = tk.Frame(inner_frame, bg=COLORS['surface'])
 prompt_section.pack(fill='x', pady=(0, 20))
 
@@ -162,7 +152,6 @@ prompt_label = tk.Label(
 )
 prompt_label.pack(anchor='w', pady=(0, 8))
 
-# Text area for prompt input
 prompt_entry = tk.Text(
     prompt_section,
     width=80,
@@ -178,11 +167,9 @@ prompt_entry = tk.Text(
 )
 prompt_entry.pack(fill='x')
 
-# --- Button Section ---
 button_section = tk.Frame(inner_frame, bg=COLORS['surface'])
 button_section.pack(fill='x', pady=(0, 20))
 
-# Generate button
 generate_button = tk.Button(
     button_section,
     text="✨ Generate",
@@ -197,7 +184,6 @@ generate_button = tk.Button(
 )
 generate_button.pack(side='left', padx=(0, 10))
 
-# Clear button
 clear_button = tk.Button(
     button_section,
     text="🗑️ Clear",
@@ -212,13 +198,11 @@ clear_button = tk.Button(
 )
 clear_button.pack(side='left')
 
-# Bind hover effects
 generate_button.bind("<Enter>", on_button_hover)
 generate_button.bind("<Leave>", on_button_leave)
 clear_button.bind("<Enter>", lambda e: e.widget.config(bg='#95A5A6'))
 clear_button.bind("<Leave>", lambda e: e.widget.config(bg=COLORS['text_secondary']))
 
-# --- Response Section ---
 response_section = tk.Frame(inner_frame, bg=COLORS['surface'])
 response_section.pack(fill='both', expand=True)
 
@@ -231,7 +215,6 @@ response_label = tk.Label(
 )
 response_label.pack(anchor='w', pady=(0, 8))
 
-# Response text area with custom styling
 response_text = scrolledtext.ScrolledText(
     response_section,
     wrap=tk.WORD,
@@ -249,7 +232,6 @@ response_text = scrolledtext.ScrolledText(
 )
 response_text.pack(fill='both', expand=True)
 
-# --- Status Bar ---
 status_frame = tk.Frame(main_frame, bg=COLORS['background'])
 status_frame.pack(fill='x', pady=(10, 0))
 
@@ -262,7 +244,6 @@ status_label = tk.Label(
 )
 status_label.pack(anchor='w')
 
-# Handle case where API key is not found
 if not API_KEY:
     response_text.insert(tk.END, "❌ Error: GEMINI_API_KEY not found in environment variables.\n\nPlease check your .env file and ensure the API key is properly configured.")
     generate_button.config(state=tk.DISABLED, bg=COLORS['text_secondary'])
@@ -271,7 +252,6 @@ if not API_KEY:
 else:
     status_label.config(text="✅ Ready to generate amazing content! 🚀", fg=COLORS['success'])
 
-# Add some placeholder text to prompt
 prompt_entry.insert("1.0", "Ask me anything! I can help with writing, coding, analysis, creative tasks, and much more...")
 prompt_entry.bind("<FocusIn>", lambda e: prompt_entry.delete("1.0", tk.END) if prompt_entry.get("1.0", tk.END).strip().startswith("Ask me anything!") else None)
 
