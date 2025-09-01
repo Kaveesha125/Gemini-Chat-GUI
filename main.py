@@ -12,21 +12,33 @@ if API_KEY:
     genai.configure(api_key=API_KEY)
 
 # A list of models the user can choose from.
-# You can customize this list based on the models you have access to.
 AVAILABLE_MODELS = [
     'models/gemini-1.5-flash-latest',
-    'models/gemini-1.5-pro-latest',
     'models/gemini-2.5-flash',
     'models/gemini-2.5-pro',
     'models/gemini-2.5-flash-preview-05-20',
-    'models/gemini-2.5-pro-preview-05-06',
 ]
+
+# --- Color Scheme ---
+COLORS = {
+    'primary': '#2C3E50',      # Dark blue-gray
+    'secondary': '#3498DB',     # Bright blue
+    'accent': '#E74C3C',        # Red accent
+    'success': '#27AE60',       # Green
+    'background': '#ECF0F1',    # Light gray
+    'surface': '#FFFFFF',       # White
+    'text_primary': '#2C3E50',  # Dark text
+    'text_secondary': '#7F8C8D', # Gray text
+    'button_hover': '#2980B9',  # Darker blue
+    'gradient_start': '#667eea',
+    'gradient_end': '#764ba2'
+}
 
 # --- GUI Application ---
 
 def generate_response():
     """Gets prompt and selected model, calls API, and updates GUI."""
-    prompt = prompt_entry.get()
+    prompt = prompt_entry.get("1.0", tk.END).strip()
     selected_model = model_combobox.get()
 
     if not prompt:
@@ -37,13 +49,12 @@ def generate_response():
         return
 
     # Disable button and show loading message
-    generate_button.config(state=tk.DISABLED)
+    generate_button.config(state=tk.DISABLED, text="Generating...", bg=COLORS['text_secondary'])
     response_text.delete('1.0', tk.END)
-    response_text.insert(tk.END, f"Generating with {selected_model}...")
+    response_text.insert(tk.END, f"🤖 Generating with {selected_model}...\n\nPlease wait...")
 
     # Run API call in a separate thread
     threading.Thread(target=call_gemini_api, args=(prompt, selected_model)).start()
-
 
 def call_gemini_api(prompt, model_name):
     """Worker function to call the API with the selected model."""
@@ -54,52 +65,226 @@ def call_gemini_api(prompt, model_name):
         # Schedule GUI update to run in the main thread
         root.after(0, update_gui_with_response, response.text)
     except Exception as e:
-        root.after(0, update_gui_with_response, f"An error occurred: {e}")
-
+        root.after(0, update_gui_with_response, f"❌ An error occurred: {e}")
 
 def update_gui_with_response(text):
     """Updates the text box and re-enables the button."""
     response_text.delete('1.0', tk.END)
     response_text.insert(tk.END, text)
-    generate_button.config(state=tk.NORMAL)
+    generate_button.config(state=tk.NORMAL, text="✨ Generate", bg=COLORS['secondary'])
 
+def on_button_hover(event):
+    """Handle button hover effect."""
+    event.widget.config(bg=COLORS['button_hover'])
+
+def on_button_leave(event):
+    """Handle button leave effect."""
+    if event.widget['state'] == 'normal':
+        event.widget.config(bg=COLORS['secondary'])
+
+def clear_response():
+    """Clear the response text area."""
+    response_text.delete('1.0', tk.END)
 
 # --- Main Window Setup ---
 root = tk.Tk()
-root.title("Gemini Model Selector GUI")
+root.title("🤖 Gemini AI Studio")
+root.geometry("900x700")
+root.configure(bg=COLORS['background'])
 
-frame = tk.Frame(root, padx=10, pady=10)
-frame.pack(padx=10, pady=10, fill="both", expand=True)
+# Configure modern font
+try:
+    title_font = ('Segoe UI', 18, 'bold')
+    heading_font = ('Segoe UI', 12, 'bold')
+    body_font = ('Segoe UI', 10)
+    button_font = ('Segoe UI', 10, 'bold')
+except:
+    title_font = ('Arial', 18, 'bold')
+    heading_font = ('Arial', 12, 'bold')
+    body_font = ('Arial', 10)
+    button_font = ('Arial', 10, 'bold')
 
-# --- Model Selection Dropdown ---
-model_label = tk.Label(frame, text="Choose a model:")
-model_label.pack(fill='x')
+# Main container with padding
+main_frame = tk.Frame(root, bg=COLORS['background'], padx=20, pady=20)
+main_frame.pack(fill='both', expand=True)
 
-model_combobox = ttk.Combobox(frame, values=AVAILABLE_MODELS, state="readonly")
-model_combobox.pack(fill='x', pady=(0, 10))
+# Title
+title_label = tk.Label(
+    main_frame,
+    text="🤖 Gemini AI Studio",
+    font=title_font,
+    bg=COLORS['background'],
+    fg=COLORS['primary']
+)
+title_label.pack(pady=(0, 20))
+
+# Content frame with white background
+content_frame = tk.Frame(main_frame, bg=COLORS['surface'], relief='raised', bd=1)
+content_frame.pack(fill='both', expand=True, padx=10, pady=10)
+
+# Inner padding frame
+inner_frame = tk.Frame(content_frame, bg=COLORS['surface'], padx=25, pady=25)
+inner_frame.pack(fill='both', expand=True)
+
+# --- Model Selection Section ---
+model_section = tk.Frame(inner_frame, bg=COLORS['surface'])
+model_section.pack(fill='x', pady=(0, 20))
+
+model_label = tk.Label(
+    model_section,
+    text="🎯 Choose AI Model:",
+    font=heading_font,
+    bg=COLORS['surface'],
+    fg=COLORS['text_primary']
+)
+model_label.pack(anchor='w', pady=(0, 8))
+
+# Custom style for combobox
+style = ttk.Style()
+style.theme_use('clam')
+style.configure('Custom.TCombobox',
+                fieldbackground=COLORS['surface'],
+                background=COLORS['secondary'],
+                foreground=COLORS['text_primary'],
+                selectbackground=COLORS['secondary'])
+
+model_combobox = ttk.Combobox(
+    model_section,
+    values=AVAILABLE_MODELS,
+    state="readonly",
+    font=body_font,
+    style='Custom.TCombobox'
+)
+model_combobox.pack(fill='x', ipady=8)
+
 # Set the default model
 if AVAILABLE_MODELS:
     model_combobox.set('models/gemini-1.5-flash-latest')
 
-# --- Prompt Entry ---
-prompt_label = tk.Label(frame, text="Enter your prompt:")
-prompt_label.pack(fill='x')
+# --- Prompt Section ---
+prompt_section = tk.Frame(inner_frame, bg=COLORS['surface'])
+prompt_section.pack(fill='x', pady=(0, 20))
 
-prompt_entry = tk.Entry(frame, width=80)
-prompt_entry.pack(fill='x', pady=5)
+prompt_label = tk.Label(
+    prompt_section,
+    text="💭 Enter Your Prompt:",
+    font=heading_font,
+    bg=COLORS['surface'],
+    fg=COLORS['text_primary']
+)
+prompt_label.pack(anchor='w', pady=(0, 8))
 
-# --- Generate Button ---
-generate_button = tk.Button(frame, text="Generate", command=generate_response)
-generate_button.pack(pady=5)
+# Text area for prompt input
+prompt_entry = tk.Text(
+    prompt_section,
+    width=80,
+    height=4,
+    font=body_font,
+    bg=COLORS['surface'],
+    fg=COLORS['text_primary'],
+    relief='solid',
+    bd=1,
+    wrap=tk.WORD,
+    padx=10,
+    pady=10
+)
+prompt_entry.pack(fill='x')
 
-# --- Response Area ---
-response_text = scrolledtext.ScrolledText(frame, wrap=tk.WORD, width=80, height=20)
-response_text.pack(fill='both', expand=True, pady=5)
+# --- Button Section ---
+button_section = tk.Frame(inner_frame, bg=COLORS['surface'])
+button_section.pack(fill='x', pady=(0, 20))
+
+# Generate button
+generate_button = tk.Button(
+    button_section,
+    text="✨ Generate",
+    command=generate_response,
+    font=button_font,
+    bg=COLORS['secondary'],
+    fg='white',
+    relief='flat',
+    padx=30,
+    pady=12,
+    cursor='hand2'
+)
+generate_button.pack(side='left', padx=(0, 10))
+
+# Clear button
+clear_button = tk.Button(
+    button_section,
+    text="🗑️ Clear",
+    command=clear_response,
+    font=button_font,
+    bg=COLORS['text_secondary'],
+    fg='white',
+    relief='flat',
+    padx=20,
+    pady=12,
+    cursor='hand2'
+)
+clear_button.pack(side='left')
+
+# Bind hover effects
+generate_button.bind("<Enter>", on_button_hover)
+generate_button.bind("<Leave>", on_button_leave)
+clear_button.bind("<Enter>", lambda e: e.widget.config(bg='#95A5A6'))
+clear_button.bind("<Leave>", lambda e: e.widget.config(bg=COLORS['text_secondary']))
+
+# --- Response Section ---
+response_section = tk.Frame(inner_frame, bg=COLORS['surface'])
+response_section.pack(fill='both', expand=True)
+
+response_label = tk.Label(
+    response_section,
+    text="🎯 AI Response:",
+    font=heading_font,
+    bg=COLORS['surface'],
+    fg=COLORS['text_primary']
+)
+response_label.pack(anchor='w', pady=(0, 8))
+
+# Response text area with custom styling
+response_text = scrolledtext.ScrolledText(
+    response_section,
+    wrap=tk.WORD,
+    width=80,
+    height=15,
+    font=body_font,
+    bg=COLORS['surface'],
+    fg=COLORS['text_primary'],
+    relief='solid',
+    bd=1,
+    padx=15,
+    pady=15,
+    selectbackground=COLORS['secondary'],
+    selectforeground='white'
+)
+response_text.pack(fill='both', expand=True)
+
+# --- Status Bar ---
+status_frame = tk.Frame(main_frame, bg=COLORS['background'])
+status_frame.pack(fill='x', pady=(10, 0))
+
+status_label = tk.Label(
+    status_frame,
+    text="Ready to generate amazing content! 🚀",
+    font=('Segoe UI', 9),
+    bg=COLORS['background'],
+    fg=COLORS['text_secondary']
+)
+status_label.pack(anchor='w')
 
 # Handle case where API key is not found
 if not API_KEY:
-    response_text.insert(tk.END, "Error: GEMINI_API_KEY not found.")
-    generate_button.config(state=tk.DISABLED)
+    response_text.insert(tk.END, "❌ Error: GEMINI_API_KEY not found in environment variables.\n\nPlease check your .env file and ensure the API key is properly configured.")
+    generate_button.config(state=tk.DISABLED, bg=COLORS['text_secondary'])
     model_combobox.config(state=tk.DISABLED)
+    status_label.config(text="⚠️ API Key not configured", fg=COLORS['accent'])
+else:
+    status_label.config(text="✅ Ready to generate amazing content! 🚀", fg=COLORS['success'])
+
+# Add some placeholder text to prompt
+prompt_entry.insert("1.0", "Ask me anything! I can help with writing, coding, analysis, creative tasks, and much more...")
+prompt_entry.bind("<FocusIn>", lambda e: prompt_entry.delete("1.0", tk.END) if prompt_entry.get("1.0", tk.END).strip().startswith("Ask me anything!") else None)
 
 root.mainloop()
