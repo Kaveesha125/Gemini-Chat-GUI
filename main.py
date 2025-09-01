@@ -5,13 +5,11 @@ import os
 from dotenv import load_dotenv
 import threading
 
-# --- API Configuration ---
 load_dotenv()
 API_KEY = os.getenv("GEMINI_API_KEY")
 if API_KEY:
     genai.configure(api_key=API_KEY)
 
-# A list of models the user can choose from.
 AVAILABLE_MODELS = [
     'models/gemini-1.5-flash-latest',
     'models/gemini-2.5-flash',
@@ -19,25 +17,22 @@ AVAILABLE_MODELS = [
     'models/gemini-2.5-flash-preview-05-20',
 ]
 
-# --- Color Scheme ---
 COLORS = {
-    'primary': '#2C3E50',      # Dark blue-gray
-    'secondary': '#3498DB',     # Bright blue
-    'accent': '#E74C3C',        # Red accent
-    'success': '#27AE60',       # Green
-    'background': '#ECF0F1',    # Light gray
-    'surface': '#FFFFFF',       # White
-    'text_primary': '#2C3E50',  # Dark text
-    'text_secondary': '#7F8C8D', # Gray text
-    'button_hover': '#2980B9',  # Darker blue
+    'primary': '#2C3E50',
+    'secondary': '#3498DB',
+    'accent': '#E74C3C',
+    'success': '#27AE60',
+    'background': '#ECF0F1',
+    'surface': '#FFFFFF',
+    'text_primary': '#2C3E50',
+    'text_secondary': '#7F8C8D',
+    'button_hover': '#2980B9',
     'gradient_start': '#667eea',
     'gradient_end': '#764ba2'
 }
 
-# --- GUI Application ---
 
 def generate_response():
-    """Gets prompt and selected model, calls API, and updates GUI."""
     prompt = prompt_entry.get("1.0", tk.END).strip()
     selected_model = model_combobox.get()
 
@@ -48,33 +43,26 @@ def generate_response():
         update_gui_with_response("Please select a model.")
         return
 
-    # Disable button and show loading message
     generate_button.config(state=tk.DISABLED, text="Generating...", bg=COLORS['text_secondary'])
     response_text.delete('1.0', tk.END)
     response_text.insert(tk.END, f"🤖 Generating with {selected_model}...\n\nPlease wait...")
 
-    # Run API call in a separate thread
     threading.Thread(target=call_gemini_api, args=(prompt, selected_model)).start()
 
 def call_gemini_api(prompt, model_name):
-    """Worker function to call the API with the selected model."""
     try:
-        # Initialize the model dynamically based on user selection
         model = genai.GenerativeModel(model_name)
         response = model.generate_content(prompt)
-        # Schedule GUI update to run in the main thread
         root.after(0, update_gui_with_response, response.text)
     except Exception as e:
         root.after(0, update_gui_with_response, f"❌ An error occurred: {e}")
 
 def update_gui_with_response(text):
-    """Updates the text box and re-enables the button."""
     response_text.delete('1.0', tk.END)
     response_text.insert(tk.END, text)
     generate_button.config(state=tk.NORMAL, text="✨ Generate", bg=COLORS['secondary'])
 
 def on_button_hover(event):
-    """Handle button hover effect."""
     event.widget.config(bg=COLORS['button_hover'])
 
 def on_button_leave(event):
