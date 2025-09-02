@@ -7,11 +7,14 @@ A small Python Tkinter desktop GUI client for Google Gemini — enter prompts an
 ## Quick Start
 
 1. Clone the repo  
-   `git clone git@github.com:Kaveesha125/Gemini-Chat-GUI.git`  
+   `git clone https://github.com/Kaveesha125/Gemini-Chat-GUI.git`  
    `cd Gemini-Chat-GUI`
 
 2. Create a `\.env` file in the project root and add your API key:  
    `GEMINI_API_KEY=your_api_key_here`
+
+3. install dependencies:  
+   `pip install google-generativeai python-dotenv`
 
 3. Run the script:  
    `python main.py`
