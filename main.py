@@ -8,8 +8,6 @@ import threading
 import markdown
 import pyperclip
 
-# This assumes you have a system_prompt.py file with a SYSTEM_PROMPT variable.
-# If not, you can replace `SYSTEM_PROMPT` with a string.
 try:
     from system_prompt import SYSTEM_PROMPT
 except ImportError:
@@ -24,12 +22,13 @@ if API_KEY:
 
 # === Available Gemini models ===
 AVAILABLE_MODELS = [
-    'models/gemini-1.5-flash-latest',
     'models/gemini-2.5-flash',
     'models/gemini-2.5-pro',
-    'models/gemini-2.5-flash-preview-05-20',
+    'models/gemini-2.0-flash-001',
+    'models/gemini-flash-latest',
+    'models/gemini-pro-latest',
+    'models/gemini-2.5-flash-lite'
 ]
-
 # === Colors ===
 COLORS = {
     'primary': '#2C3E50',
@@ -104,9 +103,10 @@ def update_gui_with_response(md_text):
     <head>
         <style>
             body {{
-                background-color: #f9f9f9;
+                background-color: {COLORS['primary']};
                 margin: 0;
                 padding: 20px;
+                color: {COLORS['background']};
             }}
             .markdown-body {{
                 box-sizing: border-box;
@@ -114,12 +114,39 @@ def update_gui_with_response(md_text):
                 max-width: 980px;
                 margin: 0 auto;
                 padding: 20px;
-                background: #fff;
-                border: 1px solid #e1e4e8;
+                background: {COLORS['primary']};
+                border: 1px solid {COLORS['text_secondary']};
                 border-radius: 6px;
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+                color: {COLORS['background']};
             }}
             {github_css}
+
+            /* Dark theme overrides */
+            .markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4, .markdown-body h5, .markdown-body h6 {{
+                color: {COLORS['secondary']};
+                border-bottom-color: {COLORS['text_secondary']};
+            }}
+            .markdown-body a {{
+                color: #58A6FF;
+            }}
+            .markdown-body code, .markdown-body pre {{
+                background-color: #161B22 !important;
+                color: #C9D1D9 !important;
+            }}
+            .markdown-body blockquote {{
+                color: {COLORS['text_secondary']};
+                border-left-color: {COLORS['text_secondary']};
+            }}
+            .markdown-body table th, .markdown-body table td {{
+                border-color: {COLORS['text_secondary']};
+            }}
+            .markdown-body table tr {{
+                 background-color: {COLORS['primary']};
+            }}
+             .markdown-body table tr:nth-child(2n) {{
+                background-color: #21262d;
+            }}
         </style>
     </head>
     <body>
@@ -134,6 +161,7 @@ def update_gui_with_response(md_text):
     response_frame.load_html(final_html)
 
     generate_button.config(state=tk.NORMAL, text="✨ Generate", bg=COLORS['secondary'])
+
 
 # === Copy Markdown to Clipboard ===
 def copy_markdown():
@@ -234,7 +262,7 @@ model_combobox = ttk.Combobox(
 model_combobox.pack(fill='x', ipady=8)
 
 if AVAILABLE_MODELS:
-    model_combobox.set('models/gemini-1.5-flash-latest')
+    model_combobox.set('models/gemini-2.5-flash-lite')
 
 # === Prompt input ===
 prompt_section = tk.Frame(inner_frame, bg=COLORS['surface'])
