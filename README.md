@@ -10,11 +10,11 @@ A small Python Tkinter desktop GUI client for Google Gemini — enter prompts an
   <tr>
     <td align="center" valign="top" width="50%">
       <img src="chat.webp" alt="Demo 1" style="max-width:100%;height:auto;" />
-      <p>Demo 1</p>
+      <p>Tutorial</p>
     </td>
     <td align="center" valign="top" width="50%">
       <img src="fasttiny.webp" alt="Demo 2" style="max-width:100%;height:auto;" />
-      <p>Demo 2</p>
+      <p>Example Output File</p>
     </td>
   </tr>
 </table>
