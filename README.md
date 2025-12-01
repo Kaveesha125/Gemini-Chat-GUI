@@ -6,17 +6,18 @@ A small Python Tkinter desktop GUI client for Google Gemini — enter prompts an
 
 ## Demo
 
----
-
-Tutorial
-
-![Tutorial GIF](chat.webp)
-
----
-
-Sample downloaded markdown file preview
-
-![Tutorial GIF](fasttiny.webp)
+<table>
+  <tr>
+    <td align="center" valign="top" width="50%">
+      <img src="chat.webp" alt="Demo 1" style="max-width:100%;height:auto;" />
+      <p>Demo 1</p>
+    </td>
+    <td align="center" valign="top" width="50%">
+      <img src="fasttiny.webp" alt="Demo 2" style="max-width:100%;height:auto;" />
+      <p>Demo 2</p>
+    </td>
+  </tr>
+</table>
 
 ---
 
